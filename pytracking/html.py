@@ -6,10 +6,11 @@ from pytracking.tracking import (
 
 DEFAULT_ATTRIBUTES = {
     "border": "0",
-    "width": "0",
-    "height": "0",
-    "alt": ""
+    "width": "1",
+    "height": "1",
+    "alt": "",
 }
+
 
 DOCTYPE = "<!DOCTYPE html>"
 
@@ -58,8 +59,22 @@ def _replace_links(tree, extra_metadata, configuration):
 
 def _add_tracking_pixel(tree, extra_metadata, configuration):
     url = get_open_tracking_url(extra_metadata, configuration)
-    pixel = html.Element("img", {"src": url})
-    tree.body.append(pixel)
+    attrs = dict(DEFAULT_ATTRIBUTES)
+    attrs["src"] = url
+    attrs["style"] = "width:1px;height:1px;border:0;display:block"
+
+    def _make_pixel():
+        return html.Element("img", dict(attrs))
+
+    body = None
+    if getattr(tree, "tag", None) == "html":
+        body = tree.find("body")
+    if body is None:
+        body = getattr(tree, "body", None)
+
+    target = body if body is not None else tree
+    target.insert(0, _make_pixel())
+    target.append(_make_pixel())
 
 
 def _valid_link(link):

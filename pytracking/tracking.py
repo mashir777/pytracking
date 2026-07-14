@@ -61,7 +61,7 @@ class Configuration(object):
         self.encoding = encoding
         self.kwargs = kwargs
         self.encryption_key = None
-        self.append_slash = False
+        self.append_slash = append_slash
 
         self.cache_encryption_key()
 
